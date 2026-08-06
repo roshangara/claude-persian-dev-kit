@@ -84,11 +84,25 @@ Without an override it looks in the code-server, VS Code Server, VS Code
 desktop, Cursor and Windsurf extension directories. It exits 0 and says nothing
 when no Claude Code extension is installed.
 
+### Checking it worked
+
+`tests/render-test-fa.txt` and `tests/render-test-en.txt` are prompts. Paste one
+into a fresh session and it produces every element Claude Code can render —
+headings, nested lists, tables, blockquotes, code blocks, links, tool calls,
+diffs — each in both a Persian-first and a Latin-first variant.
+
+That split is the point. Every bug found while building this came from the same
+place: a block that opens with a Latin word but is mostly Persian. The English
+file is the regression check — English must stay untouched.
+
 ### Undo
 
 ```
 for f in <ext>/webview/index.{css,js}; do cp -f "$f.orig" "$f"; done
 ```
+
+`apply-patch.sh` writes those `.orig` copies on first run and never overwrites
+them, so this restores the extension exactly as it shipped.
 
 ---
 

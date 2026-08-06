@@ -1,0 +1,69 @@
+This is a rendering test, not real work. Do not read or modify any project
+files. Just produce the output below so I can eyeball the layout. Keep this
+exact order and numbering, and give each section its own heading.
+
+The point of this one is regression: English must stay left-to-right and must
+look untouched. Anything that drifts right, centres itself, or changes font is
+a bug.
+
+1) Headings — all six levels h1 through h6. Make levels 2, 4 and 6 start with a
+   Persian word (e.g. "فهرست — Inventory") and the rest pure English.
+
+2) Five paragraphs:
+   a) starts with a bold Latin term, rest English
+   b) pure English, ends with a Persian word
+   c) mostly English with two or three Persian words in the middle
+   d) English dense with inline code — file paths, command names, versions,
+      IPs, ports
+   e) one very long English paragraph, at least eight lines, that wraps several
+      times; put a long unbroken URL in the middle so I can see line breaking
+
+3) Emphasis — bold, italic, bold-italic, strikethrough. Each once on an English
+   word and once on a Persian word, inside an English sentence.
+
+4) Unordered list, three levels deep. Some items starting with Persian, some
+   with English. At the third level include one item that is only inline code,
+   and one that starts with a number.
+
+5) Ordered list, three levels deep, same mixture.
+
+6) Task list — two checked, two unchecked, English text.
+
+7) Three tables:
+   a) English headers, Latin values (version, IP, size)
+   b) English headers, Persian values
+   c) all three alignments (left, centre, right) with one column of inline code
+
+8) Blockquotes — one plain English, one nested two levels, one containing a
+   list and inline code.
+
+9) Four code blocks:
+   a) yaml with English comments
+   b) bash with a Persian comment and a Persian string in quotes
+   c) no language tag, containing an ASCII diagram with ← and → arrows and
+      aligned columns
+   d) json with one Persian value, plus one very long line that scrolls
+      horizontally
+
+10) A horizontal rule between two English paragraphs.
+
+11) Links inside an English sentence: link with Latin text, link with Persian
+    text, link to a file with a line number, and a bare URL.
+
+12) Numbers and punctuation inside English sentences:
+    - Persian digits (۱۲۳۴) and Latin digits (1234) in one sentence
+    - version v2.15.2, IP 10.10.1.10, port 443, size 4.8 MB, 99.9%
+    - parentheses containing Latin, containing Persian, and nested
+    - «Persian quotes» and "Latin quotes"
+    - punctuation ، ؛ ؟ ! : — – …
+    - a sentence ending in a full stop and one ending in a question mark
+    - a line starting with a symbol: "— leading dash"
+
+13) Finally, do these four with real tools so the tool UI renders too. Write
+    only inside /tmp/render-test/, touch nothing else:
+    - a TodoWrite with four English items
+    - create a new file mixing English and Persian
+    - Edit that same file so the diff view renders with mixed text
+    - a Bash command that prints mixed English and Persian output
+
+Write no summary at the end. Just the elements.
