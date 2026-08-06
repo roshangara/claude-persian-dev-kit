@@ -139,11 +139,29 @@ Edit `plugins/persian-style/style/persian.md` to taste — it is one file.
 
 ## verify-first
 
-Two habits, with triggers rather than always-on modes.
+Three rules. Each one fires on a trigger — none of them is an always-on mode.
+That distinction is the whole design: a rule that shows up when it is irrelevant
+reads as noise, and within a day it gets skimmed past.
 
-**Check a claim before building on it.** When your message contains a verifiable
-premise the work depends on, Claude checks it instead of agreeing. Not a licence
-to argue — a preference or a decision you have already made is yours.
+| rule | fires when | costs |
+|---|---|---|
+| check the claim | every prompt | ~570 characters |
+| research before recommending | the prompt asks you to choose | ~2 KB, only then |
+| don't pin from memory | a `Write`/`Edit` contains a version | nothing until it does |
+
+**Check a claim before building on it.** When your message rests on a verifiable
+premise, Claude checks it instead of agreeing. Short enough to carry on every
+prompt. Not a licence to argue — a preference or a decision you already made is
+yours.
+
+**Research before recommending.** When you ask which tool, which library, which
+version, what's best, what replaced what — the rule arrives with a list of where
+to actually look, and a matching list of what *not* to waste a lookup on. It
+asks for one targeted check per thing being recommended, not a survey, and it
+says explicitly that an unreachable network means "answer and flag it", not
+"stall".
+
+Triggered on the asking. English and Persian phrasings both.
 
 **Never write a version from memory.** A `PreToolUse` hook scans every `Write`
 and `Edit` for dependency pins — `uses: owner/repo@v4`, `FROM node:22`,
