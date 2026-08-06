@@ -17,6 +17,5 @@
     "style",
     "tone"
   ],
-  "license": "MIT",
-  "hooks": "./hooks/hooks.json"
+  "license": "MIT"
 }
