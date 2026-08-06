@@ -1,0 +1,20 @@
+Third-party content bundled in this repository.
+
+The code in this repository is MIT licensed — see LICENSE. The font below is
+not, and is redistributed here under its own terms.
+
+--------------------------------------------------------------------------------
+
+Vazirmatn
+  File:      plugins/persian-rendering/assets/Vazirmatn-NL-var.woff2
+             (the "Non-Latin" variable build — Arabic-script glyphs only)
+  Copyright: Copyright 2015 The Vazirmatn Project Authors
+  Source:    https://github.com/rastikerdar/vazirmatn
+  Licence:   SIL Open Font License, Version 1.1
+  Full text: plugins/persian-rendering/assets/Vazirmatn-OFL.txt
+
+--------------------------------------------------------------------------------
+
+This project patches the Claude Code VS Code extension in place, on the machine
+it is installed on. No Anthropic code is copied into or redistributed by this
+repository.

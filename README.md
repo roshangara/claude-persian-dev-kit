@@ -14,6 +14,15 @@ They are independent — install only what you want.
 /plugin install verify-first@persian-dev-kit
 ```
 
+**Then start a new session.** Hooks are registered when a session begins, so
+nothing installed mid-session takes effect until you restart Claude Code. For
+`persian-rendering` there is a second step after that: reload the editor window
+(`Developer: Reload Window`), because the browser is still holding the old
+webview bundle.
+
+If the font has not changed, it is almost always one of those two — see
+[Troubleshooting](#troubleshooting).
+
 Updates arrive when you run `/plugin marketplace update`, or automatically if
 you set `autoUpdate` on the marketplace in your settings.
 
@@ -182,9 +191,32 @@ real work.
 
 ---
 
+## Troubleshooting
+
+**The font did not change.** In order of how often it is the answer:
+
+1. **You did not restart the session.** Hooks register at session start, so the
+   patch never ran. Quit Claude Code, start it again.
+2. **You did not reload the window.** The patch is on disk but the browser still
+   has the old bundle. `Developer: Reload Window`.
+3. **The plugin failed to load.** `claude plugin list` — look for
+   `Status: ✔ enabled` and `Version: 0.1.1` or newer. Anything older, run
+   `claude plugin update persian-rendering@persian-dev-kit`.
+
+To see what the patch actually did, run it by hand:
+
+```
+CPDK_VERBOSE=1 ~/.claude/plugins/cache/persian-dev-kit/persian-rendering/*/scripts/apply-patch.sh
+```
+
+It names each extension it patched, or says it found none. If it found none,
+your editor keeps extensions somewhere this does not look — set
+`CPDK_EXTENSIONS_DIR` to that directory and please open an issue with the path.
+
 ## Licence
 
-Code: MIT. Bundled font: SIL OFL 1.1 — see [LICENSE](LICENSE).
+Code: MIT — see [LICENSE](LICENSE).
+Bundled font: SIL OFL 1.1 — see [NOTICE](NOTICE).
 
 This patches the Claude Code extension **in place on your own machine**. No
 Anthropic code is redistributed here.
