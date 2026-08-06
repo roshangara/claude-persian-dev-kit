@@ -154,14 +154,30 @@ premise, Claude checks it instead of agreeing. Short enough to carry on every
 prompt. Not a licence to argue — a preference or a decision you already made is
 yours.
 
-**Research before recommending.** When you ask which tool, which library, which
-version, what's best, what replaced what — the rule arrives with a list of where
-to actually look, and a matching list of what *not* to waste a lookup on. It
-asks for one targeted check per thing being recommended, not a survey, and it
-says explicitly that an unreachable network means "answer and flag it", not
-"stall".
+**Research before recommending.** Fires on two shapes, because a technology
+choice usually arrives as the second one:
 
-Triggered on the asking. English and Persian phrasings both.
+- *asking* — "which queue should we use", "what's the best", "is this deprecated"
+- *building* — "I want to implement DNS", "we need a job scheduler",
+  "let's set up centralized logging"
+
+The second has no question mark and none of the recommendation words in it, but
+it is still a decision about what to use. Matching only the first shape was this
+plugin's biggest hole.
+
+The rule scales with the question. A version check is one registry call. A "we
+need an X" is three steps before anything gets named: read what they already
+run, search what the current landscape actually is, then check the thing you
+landed on is still alive. It ends with "if you skipped those and named a tool
+anyway, you guessed — say so."
+
+It also says what *not* to look up, asks for one recommendation rather than a
+survey, and treats an unreachable network as "answer and flag it", never as a
+reason to stall.
+
+English and Persian phrasings both. Ordinary work — `fix`, `run`, `commit`,
+"why is this failing" — is filtered out even when it contains a word like
+*install*.
 
 **Never write a version from memory.** A `PreToolUse` hook scans every `Write`
 and `Edit` for dependency pins — `uses: owner/repo@v4`, `FROM node:22`,

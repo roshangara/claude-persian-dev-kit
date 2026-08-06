@@ -20,9 +20,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 CONTEXT = os.path.join(HERE, "..", "context")
 
-# Prompts that are asking for a choice, in English and Persian. Tuned to fire on
-# "which should I use" and not on "fix this typo" -- a false positive costs a
-# page of context and trains the reader to skim past it.
+# Asking for a choice outright: "which one", "what's best", "recommend".
 ASKS_FOR_A_CHOICE = re.compile(
     r"""
       recommend | suggest | \bbest\b | \bbetter\b | alternative
@@ -37,6 +35,39 @@ ASKS_FOR_A_CHOICE = re.compile(
     | چی\s+(?:استفاده|بزن|بذار|انتخاب)
     | راهکار | راه\s*حل
     | جدیدتر | به\s*روزتر | آخرین\s+نسخه | منسوخ
+    """,
+    re.I | re.X,
+)
+
+# Intending to build something. "I want to implement DNS" is a technology choice
+# with no question mark in it and none of the words above -- and it is the most
+# common way the choice actually arrives. Missing these was the real gap.
+INTENDS_TO_BUILD = re.compile(
+    r"""
+      (?:want\s+to|need\s+to|going\s+to|plan(?:ning)?\s+to|let'?s|
+         help\s+me|how\s+do\s+i|how\s+can\s+i)
+      \s+ (?:\w+\s+){0,3}?
+      (?:set\s*up|setup|build|implement|deploy|install|configure|stand\s+up|
+         spin\s+up|add|introduce|create|migrate|replace|host|run)
+    | \bwe\s+need\s+(?:a|an|some)\b
+    | \bfrom\s+scratch\b
+    | (?:می\s*خوام|می\s*خواهم|میخوایم|می\s*خواستم|باید|لازمه|کمکم\s+کن)
+      [\s\S]{0,40}?
+      (?:پیاده\s*[‌]?\s*سازی|راه\s*بند|راه\s*انداز|بالا\s*بیار|ست\s*آپ|
+         نصب\s+کن|مستقر|اضافه\s+کن|جایگزین|از\s+صفر)
+    """,
+    re.I | re.X,
+)
+
+# Ordinary work that happens to contain a build word. "fix the script that
+# installs X" is not a technology choice. Cheaper to exclude these than to
+# tighten the patterns above until they start missing real cases.
+ORDINARY_WORK = re.compile(
+    r"""
+      ^\s*(?:fix|debug|run|read|show|explain|commit|push|rename|revert|
+             format|lint|test)\b
+    | \b(?:typo|این\s+خطا|این\s+ارور|چرا\s+کار\s+نمی)\b
+    | ^\s*(?:این|اون)\s+(?:فایل|خط|تابع|بخش)
     """,
     re.I | re.X,
 )
@@ -59,7 +90,8 @@ def main() -> None:
     prompt = payload.get("prompt") or ""
 
     parts = [read("claim-check.md")]
-    if ASKS_FOR_A_CHOICE.search(prompt):
+    choosing = ASKS_FOR_A_CHOICE.search(prompt) or INTENDS_TO_BUILD.search(prompt)
+    if choosing and not ORDINARY_WORK.search(prompt):
         parts.append(read("research-first.md"))
 
     context = "\n\n---\n\n".join(p for p in parts if p)

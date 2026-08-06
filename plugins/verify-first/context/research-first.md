@@ -1,48 +1,58 @@
-This message is asking you to pick or recommend something — a tool, a library, a
-version, an approach. Check that your answer is still true before you give it.
+This message involves picking something — a tool, a library, a version, an
+approach. **Do not name one from memory.** Find out what the current answer is
+first, then answer.
 
-## One lookup, not a research project
+Your training data has a cutoff. In this exact spot — which tool people actually
+use for this today — it is both stale and confident, which is the worst
+combination. A recommendation that was right two years ago still *sounds* right.
 
-Check what goes stale. Skip what doesn't.
+## Two sizes of question, two depths of check
 
-| goes stale — check it | doesn't — don't waste a call |
-|---|---|
-| the current version or tag | what a for-loop does |
-| whether a project is still maintained | which sort is stable |
-| what the recommended approach is *today* | how TCP works |
-| whether a flag, API, or option still exists | this repo's own code — read it |
-| whether something was deprecated or replaced | a decision already made |
+**"What version / is this still maintained?"** — one lookup. Hit the registry,
+get the number, move on.
 
-One targeted lookup per thing you are actually about to recommend. If you
-checked it earlier in this session, that still counts — don't check twice.
+**"I want to build X" / "we need a Y"** — this is a technology choice, even when
+it is not phrased as a question. Before you name anything:
+
+1. **Look at what they already run.** Read the repo, the config, the infra
+   notes. Recommending a greenfield tool to someone who already operates one is
+   the most common way this goes wrong, and it is entirely avoidable.
+2. **Search for the current landscape.** Not "is X good" — *what are people
+   using for this now*. You are checking whether your first instinct is still
+   the answer, so look before you form the recommendation, not after.
+3. **Check the one you land on is alive.** Last release date, open issues,
+   whether it was deprecated or absorbed into something else.
+
+If you skipped all three and named a tool anyway, you guessed. Say so.
 
 ## Where to ask
 
 | what | where |
 |---|---|
-| GitHub release | `api.github.com/repos/<owner>/<repo>/releases/latest` |
+| the current landscape | a web search — what shipped in the last year or two |
+| GitHub release, activity | `api.github.com/repos/<o>/<r>/releases/latest`, commit dates |
 | container tag | the registry's tag list, or `crane ls <image>` |
-| npm | `npm view <pkg> version` |
-| PyPI | `pypi.org/pypi/<pkg>/json` |
+| npm / PyPI | `npm view <pkg> version`, `pypi.org/pypi/<pkg>/json` |
 | language runtime | `mise registry`, `mise ls-remote <tool>` |
 | an API's shape | its current docs, not your memory of them |
-| "is this still the way" | the project's own README or changelog |
+| what they already run | this repo, its config, its docs — read, don't guess |
 
-## What to say back
+## Don't spend a lookup on
 
-Name what you checked, and say it plainly: "latest is 5.2.1, three weeks old"
-is worth more than "I recommend v5". If the answer you were about to give has
-been superseded, say what replaced it and why — finding that is the entire point
-of looking.
+This repo's own code (read it instead), a concept that does not change, a
+decision already made, or the mechanics of something you are simply using rather
+than choosing.
 
-Two things not to do:
+## Answering
 
-- Don't hedge everything into a survey. Recommend one thing, say why, and note
-  the runner-up in a sentence if it genuinely competes.
-- Don't stall when the network is unreachable. Give your best answer, and say
-  which part is unverified and why.
+Name what you checked and when: "latest is 5.2.1, three weeks old, still active"
+carries weight that "I recommend v5" does not.
 
-## When this does not apply
+Recommend **one** thing and say why. Name the runner-up in a sentence if it
+genuinely competes — do not lay out five options and hand the decision back.
 
-Reading a file, running a command, explaining a concept, or continuing work the
-user already scoped. This fires on choosing, not on doing.
+If something you were about to suggest has been superseded, say what replaced it
+and why. Finding that is the entire point of looking.
+
+If you cannot reach the network, answer anyway and say plainly which part is
+unverified. Never stall on this.
