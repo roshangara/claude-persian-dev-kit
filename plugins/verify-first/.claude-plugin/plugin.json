@@ -1,0 +1,22 @@
+{
+  "name": "verify-first",
+  "displayName": "Verify before you agree, and before you pin",
+  "version": "0.1.0",
+  "description": "Two habits, enforced rather than hoped for: check a claim before building on it, and never write a dependency version from memory. Detects version pins as they are written and puts the rule back in front of Claude.",
+  "author": {
+    "name": "Mohammad Roshangara",
+    "email": "mroshangara@gmail.com",
+    "url": "https://github.com/roshangara"
+  },
+  "homepage": "https://github.com/roshangara/claude-persian-dev-kit",
+  "repository": "https://github.com/roshangara/claude-persian-dev-kit",
+  "keywords": [
+    "verification",
+    "versions",
+    "dependencies",
+    "sycophancy",
+    "review"
+  ],
+  "license": "MIT",
+  "hooks": "./hooks/hooks.json"
+}

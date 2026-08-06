@@ -1,0 +1,87 @@
+
+/* ===== BEGIN fa-bidi-patch ===== */
+/* Persian font + bidirectional text for the Claude Code webview.
+   Font: Vazirmatn v33.003 "Non-Latin" (Persian/Arabic glyphs only, so Latin
+   text still comes from the system UI font and nothing else changes).
+   Remove everything from the BEGIN marker down to undo. */
+
+@font-face {
+  font-family: "Vazirmatn NL";
+  src: url("./Vazirmatn-NL-var.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  /* Arabic, Arabic Supplement/Extended, Presentation Forms, ZWNJ + bidi marks */
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF,
+                 U+FB50-FDFF, U+FE70-FEFF, U+200C-200F, U+061C, U+2066-2069;
+}
+
+body {
+  --fa-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans",
+           Ubuntu, Cantarell, "Helvetica Neue", "Vazirmatn NL", sans-serif;
+  --fa-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", "Roboto Mono",
+             Menlo, Consolas, "Droid Sans Mono", "Vazirmatn NL", monospace;
+
+  font-family: var(--fa-ui);
+
+  /* the app reads its fonts from these; append the Persian fallback to each */
+  --vscode-chat-font-family: var(--fa-ui);
+  --app-font-family-mono: var(--fa-mono);
+  --app-monospace-font-family: var(--fa-mono);
+  --monaco-monospace-font: var(--fa-mono);
+  --vscode-editor-font-family: var(--fa-mono);
+}
+
+/* Per-paragraph automatic direction: a block starting with a Persian letter
+   lays out RTL, one starting with a Latin letter stays LTR. `text-align:start`
+   then resolves against that auto-detected direction. */
+p, li, blockquote, td, th, h1, h2, h3, h4, h5, h6, dd, dt, summary {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+
+/* First-strong is wrong for a Persian paragraph that opens with an English
+   term. fa-bidi.js measures the whole block and writes an explicit dir; switch
+   those off plaintext (which ignores dir) so the measured value takes effect. */
+p[dir], li[dir], blockquote[dir], td[dir], th[dir], h1[dir], h2[dir], h3[dir],
+h4[dir], h5[dir], h6[dir], dd[dir], dt[dir], summary[dir] {
+  unicode-bidi: isolate;
+  text-align: start;
+}
+
+/* The composer. `.messageInput` is transparent (color:#0000) and only paints
+   the caret; the visible text is `.mentionMirror` laid over it. Both must get
+   identical direction rules or the caret drifts away from the glyphs.
+   Class hashes change between releases, so match on the prefix. */
+[class*="messageInput_"],
+[class*="mentionMirror_"],
+textarea,
+input[type="text"],
+[contenteditable="true"],
+[contenteditable="plaintext-only"] {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+
+/* A Latin link label inside a Persian sentence ("architecture.md:332") ends in
+   dots and colons, which are bidi-neutral and drift to the wrong end. Isolating
+   the link makes it one unit that the sentence places as a whole. */
+a { unicode-bidi: isolate !important; }
+
+/* Code stays LTR no matter what: a Persian comment must not flip the line, and
+   inline code inside a Persian sentence must not break the run.
+   !important throughout for the same reason as in fa-bidi.js -- the app's
+   :-webkit-any() selectors outscore anything we can append. */
+pre, pre *, code, kbd, samp, .monaco-editor, .monaco-editor * {
+  unicode-bidi: isolate !important;
+  direction: ltr !important;
+  text-align: left !important;
+}
+pre code, code code { unicode-bidi: inherit !important; }
+
+/* Diffs and terminal-ish output in the panel: keep column alignment. */
+[class*="diff"] pre, [class*="codeBlock"], [class*="terminal"] {
+  direction: ltr !important;
+  text-align: left !important;
+}
+/* ===== END fa-bidi-patch ===== */

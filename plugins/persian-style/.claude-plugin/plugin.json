@@ -1,0 +1,22 @@
+{
+  "name": "persian-style",
+  "displayName": "Persian writing style",
+  "version": "0.1.0",
+  "description": "Makes Claude answer Persian in everyday spoken Persian instead of literary or translated-from-English Persian. Injects the style guide only when your message actually contains Persian, so English sessions cost nothing.",
+  "author": {
+    "name": "Mohammad Roshangara",
+    "email": "mroshangara@gmail.com",
+    "url": "https://github.com/roshangara"
+  },
+  "homepage": "https://github.com/roshangara/claude-persian-dev-kit",
+  "repository": "https://github.com/roshangara/claude-persian-dev-kit",
+  "keywords": [
+    "persian",
+    "farsi",
+    "writing",
+    "style",
+    "tone"
+  ],
+  "license": "MIT",
+  "hooks": "./hooks/hooks.json"
+}

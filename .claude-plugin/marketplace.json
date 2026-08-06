@@ -1,0 +1,26 @@
+{
+  "name": "persian-dev-kit",
+  "description": "Persian rendering and writing style for Claude Code, plus a guard against writing dependency versions from memory.",
+  "owner": {
+    "name": "Mohammad Roshangara",
+    "email": "mroshangara@gmail.com",
+    "url": "https://github.com/roshangara"
+  },
+  "plugins": [
+    {
+      "name": "persian-rendering",
+      "source": "./plugins/persian-rendering",
+      "description": "Persian renders correctly in the Claude Code panel: bundled Vazirmatn webfont, and per-block direction decided by counting rather than by the first strong character."
+    },
+    {
+      "name": "persian-style",
+      "source": "./plugins/persian-style",
+      "description": "Claude answers Persian in everyday spoken Persian, not literary or translated-from-English Persian. Injected only when your message contains Persian."
+    },
+    {
+      "name": "verify-first",
+      "source": "./plugins/verify-first",
+      "description": "Check a claim before building on it, and never write a dependency version from memory. Catches version pins as they are written."
+    }
+  ]
+}
