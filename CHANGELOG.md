@@ -2,6 +2,23 @@
 
 Each plugin versions independently; entries here group what shipped together.
 
+## 2026-08-10 — persian-rendering 0.3.1
+
+- The app renders bidi control characters (RLM, LRM, the isolate pair) as
+  visible `\uXXXX` escape text — a deliberate spoofing defence in its
+  sanitizer. Models sprinkle exactly those marks into Persian output, so
+  answers arrived dotted with six-character noise. Direction is measured per
+  block here, which makes the marks pointless: the escape text is now removed
+  from prose. Inside backticks it survives, for when the character itself is
+  the topic. Only the uppercase-hex form the sanitizer emits is touched.
+
+### فارسی
+
+اون `\uXXXX`هایی که وسط جواب فارسی سبز می‌شدن، متنِ اسکیپ‌شده‌ی همون
+کاراکترهای کنترلی جهت بودن — خود اکستنشن عمداً نشونشون می‌ده که کسی باهاشون
+متن جعل نکنه. چون جهت رو این plugin خودش حساب می‌کنه، این علامت‌ها به هیچ
+دردی نمی‌خورن؛ از نثر پاک می‌شن. تو بک‌تیک بمونه، می‌مونه.
+
 ## 2026-08-10 — persian-rendering 0.3.0 · persian-style 0.2.0 · verify-first 0.4.0
 
 ### persian-rendering 0.3.0

@@ -79,6 +79,14 @@ The measurement has a few deliberate choices:
 - **Code blocks stay left-to-right**, always. A Persian comment must not flip
   the line.
 
+One more cleanup rides along: the app deliberately renders bidi control
+characters (RLM, LRM, the isolate pair) as visible `\uXXXX` escape text — a
+spoofing defence. Models sprinkle those marks into Persian output, so answers
+arrive dotted with six-character noise. Since direction is measured per block
+here, the marks serve no purpose at all: the escape text is removed from
+prose. In backticks it survives, which is where it belongs when you are
+actually discussing the character.
+
 ### The plan preview is a second webview
 
 Claude Code renders a plan for review in its own tab, and that tab is a separate

@@ -112,6 +112,32 @@
     el.style.setProperty('text-align', 'start', 'important');
   };
 
+  /* The app escapes bidi control characters to visible text -- its sanitizer
+     turns U+200E/200F/202A-202E/2066-2069 into a literal backslash-u sequence
+     as a spoofing defence, so a stray RLM in a model's Persian output lands on
+     the reader as six characters of noise. With direction measured per block
+     those marks are useless anyway: remove the escape text from prose. Code
+     spans are left alone (SKIP), so the sequence written in backticks still
+     displays. Uppercase hex only, which is exactly what the sanitizer emits --
+     a hand-typed lowercase one in prose is someone talking about the
+     character, not a stray mark. */
+  const ESCAPED_BIDI = /\\u(?:200[EF]|202[A-E]|206[6-9])/g;
+  const stripEscapedMarks = (el) => {
+    if (!el.querySelectorAll || el.closest(SKIP)) return;
+    const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+      acceptNode: (n) =>
+        n.parentElement && n.parentElement.closest(SKIP)
+          ? NodeFilter.FILTER_REJECT
+          : NodeFilter.FILTER_ACCEPT,
+    });
+    for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+      const t = n.nodeValue;
+      if (t.indexOf('\\u2') === -1) continue;
+      const s = t.replace(ESCAPED_BIDI, '');
+      if (s !== t) n.nodeValue = s;
+    }
+  };
+
   const hasOwnText = (el) => {
     for (let n = el.firstChild; n; n = n.nextSibling) {
       if (n.nodeType === Node.TEXT_NODE && /\S/.test(n.nodeValue)) return true;
@@ -146,6 +172,9 @@
     for (const node of batch) {
       if (!node.isConnected) continue;
       if (!node.querySelectorAll) continue;
+      /* Escape text first: the six-character sequence counts as Latin letters, so stripping it
+         before measuring also keeps it from tilting a close block to ltr. */
+      stripEscapedMarks(node);
       /* Text blocks first: they set data-fa-dir, which the loose pass and any
          nested block read as their context. */
       if (node.matches(BLOCKS)) apply(node);
