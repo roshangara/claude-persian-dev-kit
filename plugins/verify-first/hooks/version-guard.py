@@ -24,12 +24,21 @@ PATTERNS = [
     # list item, and without it this misses the single most common case.
     (re.compile(r"^\s*-?\s*uses:\s*\S+@[\w.\-]+", re.M), "action pin (uses:)"),
     (re.compile(r"^\s*(?:FROM|image:)\s+\S+:[\w.\-]+", re.M | re.I), "container tag"),
-    (re.compile(r'"[^"\s]+"\s*:\s*"[~^>=<]*\d+\.\d+[\w.\-]*"'), "npm-style dependency"),
+    # `"version"` itself is excluded: that key is the file's *own* version --
+    # every plugin.json or package.json bump tripped this before, and a guard
+    # that fires on routine bumps gets ignored by the time it matters.
+    (re.compile(r'"(?!version")[^"\s]+"\s*:\s*"[~^>=<]*\d+\.\d+[\w.\-]*"'), "npm-style dependency"),
     (re.compile(r"^\s*[\w.\-]+\s*(?:==|>=|~=)\s*\d+\.\d+", re.M), "python requirement"),
     (re.compile(r'^\s*version\s*=\s*"[~^>=<]*\d+\.\d+', re.M), "version = pin"),
     # `version = "..."` has its own rule above; excluding it here keeps a single
     # line from being reported twice.
     (re.compile(r'^\s*(?!version\b)[\w\-]+\s*=\s*"\d+(?:\.\d+)*"\s*$', re.M), "mise/toml runtime pin"),
+    # Cargo's other dependency shape: `serde = { version = "1.0", ... }`.
+    (re.compile(r'\{[^{}\n]*\bversion\s*=\s*"[~^>=<]*\d+\.\d+'), "cargo inline pin"),
+    # Module paths always contain a slash (github.com/x/y); requiring one keeps
+    # prose like "upgrade gin v1.10.0" from firing.
+    (re.compile(r"^\s*(?:require\s+)?[\w.\-]+(?:/[\w.\-]+)+\s+v\d+\.\d+\.\d+", re.M), "go module pin"),
+    (re.compile(r"""^\s*gem\s+['"][\w\-]+['"]\s*,\s*['"][~><=\s]*\d+\.\d+""", re.M), "gem pin"),
     (re.compile(r"\b[\w@/.\-]+@\d+\.\d+\.\d+\b"), "pkg@x.y.z"),
     (re.compile(r'^\s*(?:chart|appVersion|targetRevision):\s*"?v?\d+\.\d+', re.M), "chart/gitops pin"),
 ]
