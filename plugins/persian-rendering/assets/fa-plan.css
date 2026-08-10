@@ -1,0 +1,89 @@
+
+/* ===== BEGIN fa-bidi-patch ===== */
+/* Persian font + bidirectional text for the plan preview, the webview Claude
+   Code opens for "Ready for review" (viewType claudePlanPreview).
+
+   It is a second webview, and its HTML and CSS are inline in extension.js
+   rather than in webview/index.css — so the patch that fixes the chat panel
+   never reached it, and Persian there kept rendering left-to-right in whatever
+   font the machine happened to have. This file is appended to that template's
+   own <style> block, which is why nothing here needs !important: same
+   specificity, and later wins.
+
+   The font arrives as a data: URI rather than a URL. That webview's CSP is
+   default-src 'none' with no font-src, and the extension never calls
+   asWebviewUri for this panel, so a file sitting next to the bundle cannot be
+   loaded from here at all. patch-plan-webview.py substitutes the base64 and
+   adds font-src data: to the CSP.
+
+   Remove everything from the BEGIN marker down to undo. */
+
+@font-face {
+  font-family: "Vazirmatn NL";
+  src: url("data:font/woff2;base64,__FONT_BASE64__") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  /* Arabic, Arabic Supplement/Extended, Presentation Forms, ZWNJ + bidi marks */
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF,
+                 U+FB50-FDFF, U+FE70-FEFF, U+200C-200F, U+061C, U+2066-2069;
+}
+
+/* The template reads its fonts from --vscode-markdown-font-family and
+   --vscode-editor-font-family, neither of which the chat patch sets. Append the
+   Persian fallback to each: Latin text still comes from the system font,
+   because the Non-Latin build of Vazirmatn has no Latin glyphs to offer. */
+body {
+  --fa-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans",
+           Ubuntu, Cantarell, "Helvetica Neue", "Vazirmatn NL", sans-serif;
+  --fa-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", "Roboto Mono",
+             Menlo, Consolas, "Droid Sans Mono", "Vazirmatn NL", monospace;
+
+  font-family: var(--fa-ui);
+}
+
+code, pre, kbd, samp, var { font-family: var(--fa-mono); }
+
+/* Direction per block, exactly as in the chat panel: plaintext takes it from
+   the first strong character, and fa-bidi.js overrides that with a measured
+   value wherever the first character lies about the block. */
+p, li, blockquote, td, th, h1, h2, h3, h4, h5, h6, dd, dt, summary {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+
+p[dir], li[dir], blockquote[dir], td[dir], th[dir], h1[dir], h2[dir], h3[dir],
+h4[dir], h5[dir], h6[dir], dd[dir], dt[dir], summary[dir] {
+  unicode-bidi: isolate;
+  text-align: start;
+}
+
+a { unicode-bidi: isolate; }
+
+/* Code stays left-to-right whatever the surrounding paragraph decided. */
+pre, pre *, code, kbd, samp {
+  unicode-bidi: isolate;
+  direction: ltr;
+  text-align: left;
+}
+pre code, code code { unicode-bidi: inherit; }
+
+/* The template's own spacing is physical (padding-left, border-left), so in a
+   right-to-left block the bullet indent and the quote bar land on the wrong
+   side. Same values, logical properties, so they follow the direction. */
+ul, ol { padding-left: 0; padding-inline-start: 32px; }
+
+blockquote {
+  border-left: none;
+  border-inline-start: 3px solid var(--vscode-textBlockQuote-border);
+}
+
+th, td { text-align: start; }
+
+/* Holds the passage you selected to comment on, so it is Persian as often as
+   the plan is. */
+#comment-input .selected-text-preview {
+  border-left: none;
+  border-inline-start: 2px solid var(--vscode-textBlockQuote-border);
+}
+/* ===== END fa-bidi-patch ===== */

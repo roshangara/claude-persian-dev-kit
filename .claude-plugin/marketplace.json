@@ -10,7 +10,7 @@
     {
       "name": "persian-rendering",
       "source": "./plugins/persian-rendering",
-      "description": "Persian renders correctly in the Claude Code panel: bundled Vazirmatn webfont, and per-block direction decided by counting rather than by the first strong character."
+      "description": "Persian renders correctly in the Claude Code panel and in the plan preview: bundled Vazirmatn webfont, and per-block direction decided by counting rather than by the first strong character."
     },
     {
       "name": "persian-style",

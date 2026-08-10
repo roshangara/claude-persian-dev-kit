@@ -65,11 +65,40 @@ The measurement has a few deliberate choices:
 - **Code blocks stay left-to-right**, always. A Persian comment must not flip
   the line.
 
+### The plan preview is a second webview
+
+Claude Code renders a plan for review in its own tab, and that tab is a separate
+webview (`claudePlanPreview`) whose entire HTML document — stylesheet included —
+is a template literal inside `extension.js`. Nothing in `webview/` is involved.
+So Persian came out right in the session and wrong in the plan: that template
+carries no `unicode-bidi`, no `direction`, no `text-align`, and takes its font
+from `--vscode-markdown-font-family`.
+
+It gets the same treatment now, from `patch-plan-webview.py`: the stylesheet
+appended to the template's own `<style>`, and `fa-bidi.js` added as a
+`<script nonce="{{NONCE}}">`. Two things are specific to this webview:
+
+- **The font has to be inline.** Its CSP is `default-src 'none'` with no
+  `font-src`, and the extension never calls `asWebviewUri` for this panel, so a
+  URL to a file next to the bundle cannot load. The woff2 goes in as a `data:`
+  URI (48 KB, 64 KB encoded) and `font-src data:` is added to the CSP — the only
+  part of this that loosens anything, and it admits fonts already inside the
+  document.
+- **Spacing had to become logical.** The template's `padding-left: 32px` on
+  lists and `border-left` on blockquotes put the bullet indent and the quote bar
+  on the wrong side of a right-to-left block. Same values as
+  `padding-inline-start` and `border-inline-start`.
+
+This part needs `python3`: the edits land in the middle of a template literal,
+where a `sed` one-liner would be guesswork. Without it the chat panel is still
+patched and only the plan tab stays as it was.
+
 ### How it applies
 
 A `SessionStart` hook runs `apply-patch.sh`, which appends the CSS and JS to the
-extension's webview bundle. It keeps a pristine `.orig` of each file and rebuilds
-from it every run, so it is idempotent and safe to run repeatedly.
+extension's webview bundle and patches the plan preview inside `extension.js`. It
+keeps a pristine `.orig` of each file and rebuilds from it every run, so it is
+idempotent and safe to run repeatedly.
 
 Running on every session start is the point: **the Claude Code extension updates
 roughly daily, and each update replaces the files this patches.**
@@ -104,10 +133,15 @@ That split is the point. Every bug found while building this came from the same
 place: a block that opens with a Latin word but is mostly Persian. The English
 file is the regression check — English must stay untouched.
 
+The plan tab is a separate check, because it is a separate webview: ask for a
+plan in Persian in plan mode and read the review tab that opens. Paragraphs
+right-aligned with the bullet indent on the right, code blocks still
+left-to-right, and Persian in Vazirmatn rather than a fallback face.
+
 ### Undo
 
 ```
-for f in <ext>/webview/index.{css,js}; do cp -f "$f.orig" "$f"; done
+for f in <ext>/webview/index.{css,js} <ext>/extension.js; do cp -f "$f.orig" "$f"; done
 ```
 
 `apply-patch.sh` writes those `.orig` copies on first run and never overwrites
@@ -230,6 +264,12 @@ real work.
 ناخوانا. این plugin به‌جای اولین حرف، کاراکترها رو می‌شمره — و محتوای `code` رو
 حساب نمی‌کنه، چون `python3` دلیل انگلیسی بودن جمله نیست.
 
+تبِ **plan** یه webview جداست و CSS خودش رو داره — داخل `extension.js`، نه
+`webview/`. برای همین فارسی تو session درست بود و تو پلن نه. اون هم وصله می‌شه:
+همون script اندازه‌گیری اونجا هم می‌ره، فونت هم به‌صورت `data:` تزریق می‌شه چون
+CSPـش `default-src 'none'` ـه و فونت از فایل بیرونی اصلاً load نمی‌شه. این تیکه
+`python3` لازم داره؛ اگه نباشه panel وصله می‌شه و فقط تب پلن دست‌نخورده می‌مونه.
+
 وصله سر هر سشن دوباره اعمال می‌شه، چون اکستنشن تقریباً روزانه آپدیت می‌شه و هر
 آپدیت وصله رو پاک می‌کنه. بعد از اولین اجرا یه بار `Developer: Reload Window`
 بزن.
@@ -262,8 +302,15 @@ hookهای `UserPromptSubmit` روی هم جمع می‌شن، جای هم رو 
 2. **You did not reload the window.** The patch is on disk but the browser still
    has the old bundle. `Developer: Reload Window`.
 3. **The plugin failed to load.** `claude plugin list` — look for
-   `Status: ✔ enabled` and `Version: 0.1.1` or newer. Anything older, run
+   `Status: ✔ enabled` and `Version: 0.2.0` or newer. Anything older, run
    `claude plugin update persian-rendering@persian-dev-kit`.
+
+**The panel is fine but the plan tab is not.** Those are two different webviews.
+Run the patch with `CPDK_VERBOSE=1` and look for `patched plan preview`. If it
+says `plan preview skipped`, there is no `python3` on `PATH`. If it says `plan
+preview not patched`, the template inside `extension.js` no longer matches what
+the patcher expects — it restores the original rather than write a broken bundle,
+so please open an issue with your extension version.
 
 To see what the patch actually did, run it by hand:
 

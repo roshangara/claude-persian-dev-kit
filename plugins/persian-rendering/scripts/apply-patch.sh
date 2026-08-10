@@ -56,6 +56,24 @@ for root in "${roots[@]}"; do
     cp -f "$css.orig" "$css" && cat "$ASSETS/fa-bidi.css" >> "$css"
     cp -f "$js.orig" "$js" && cat "$ASSETS/fa-bidi.js" >> "$js"
 
+    # The plan preview is a second webview, built from a template inside the
+    # extension host bundle. Same treatment, but the edits go into the middle of
+    # a template literal rather than onto the end of a file, so a script does it
+    # -- see patch-plan-webview.py. Optional: if it cannot run, the chat panel is
+    # still fixed and only the plan tab stays unpatched.
+    host="$ext/extension.js"
+    if [ -f "$host" ] && [ -w "$host" ] && command -v python3 >/dev/null 2>&1; then
+      [ -f "$host.orig" ] || cp -p "$host" "$host.orig"
+      if python3 "$SELF/patch-plan-webview.py" "$host.orig" "$host" "$ASSETS"; then
+        log "patched plan preview: $(basename "$ext")"
+      else
+        cp -f "$host.orig" "$host"
+        log "plan preview not patched: $(basename "$ext")"
+      fi
+    else
+      log "plan preview skipped (no python3 or not writable): $(basename "$ext")"
+    fi
+
     patched=$((patched + 1))
     log "patched: $(basename "$ext")"
   done
