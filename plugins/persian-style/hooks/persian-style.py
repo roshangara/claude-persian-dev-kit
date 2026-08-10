@@ -31,6 +31,11 @@ PERSIAN = re.compile(
     "[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-ﻼ]"
 )
 
+# Persian inside a code fence or inline code is quoted material, not the user
+# writing Persian -- an English message pasting a Persian error string must not
+# flip the whole answer's language. Strip it before deciding.
+CODE = re.compile(r"```.*?(?:```|$)|`[^`\n]*`", re.S)
+
 
 def main() -> None:
     try:
@@ -39,7 +44,7 @@ def main() -> None:
         return
 
     prompt = payload.get("prompt") or ""
-    if not PERSIAN.search(prompt):
+    if not PERSIAN.search(CODE.sub(" ", prompt)):
         return
 
     try:
