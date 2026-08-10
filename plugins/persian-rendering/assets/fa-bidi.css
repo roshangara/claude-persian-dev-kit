@@ -16,6 +16,10 @@
                  U+FB50-FDFF, U+FE70-FEFF, U+200C-200F, U+061C, U+2066-2069;
 }
 
+/* These stacks are the no-JS fallback only. fa-bidi.js rebuilds both variables
+   inline on <body> from the fonts the user actually configured (--vscode-* on
+   the document element, which a stylesheet cannot read), with Vazirmatn slotted
+   in before the generic. */
 body {
   --fa-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans",
            Ubuntu, Cantarell, "Helvetica Neue", "Vazirmatn NL", sans-serif;

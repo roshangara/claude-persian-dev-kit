@@ -179,9 +179,43 @@
     if (pending.size) schedule();
   });
 
+  /* The stylesheet's --fa-ui/--fa-mono carry a hardcoded stack, which works but
+     throws away the font the user actually configured -- a Fira Code setting
+     died the moment the patch landed. The real values sit as --vscode-* custom
+     properties on the document element, where a stylesheet cannot reach them (a
+     var() cannot read and redefine the same name). Read them here and rebuild
+     the two stacks: the user's fonts first, then Vazirmatn, then the generic.
+     Vazirmatn must come before the generic -- font fallback is per glyph, and
+     whatever face the generic resolves to may carry Arabic glyphs of its own,
+     in which case Vazirmatn placed after it would never be reached.
+     The stylesheet values stay behind as the no-JS fallback. */
+  const fixFonts = () => {
+    const body = document.body;
+    if (!body) return;
+    const root = getComputedStyle(document.documentElement);
+    const generics = /,?\s*(?:sans-serif|serif|monospace|system-ui|ui-monospace|ui-sans-serif)\s*$/i;
+    const graft = (names, generic) => {
+      for (let i = 0; i < names.length; i++) {
+        let v = root.getPropertyValue(names[i]).trim();
+        if (!v || v.indexOf('Vazirmatn') !== -1) continue;
+        let prev;
+        do { prev = v; v = v.replace(generics, '').trim(); } while (v && v !== prev);
+        return (v ? v + ', ' : '') + '"Vazirmatn NL", ' + generic;
+      }
+      return null;
+    };
+    /* markdown-font-family only exists in the plan webview; the chat panel
+       falls through to the workbench UI font. */
+    const ui = graft(['--vscode-markdown-font-family', '--vscode-font-family'], 'sans-serif');
+    const mono = graft(['--vscode-editor-font-family'], 'monospace');
+    if (ui) body.style.setProperty('--fa-ui', ui);
+    if (mono) body.style.setProperty('--fa-mono', mono);
+  };
+
   const start = () => {
     const root = document.body || document.documentElement;
     if (!root) return;
+    fixFonts();
     pending.add(root);
     schedule();
     observer.observe(root, { childList: true, subtree: true, characterData: true });

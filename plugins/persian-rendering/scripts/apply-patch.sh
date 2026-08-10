@@ -29,6 +29,8 @@ else
     "$HOME/.vscode-server-insiders/extensions"
     "$HOME/.vscode/extensions"
     "$HOME/.vscode-insiders/extensions"
+    "$HOME/.vscode-oss/extensions"
+    "$HOME/.openvscode-server/extensions"
     "$HOME/.cursor/extensions"
     "$HOME/.windsurf/extensions"
   )

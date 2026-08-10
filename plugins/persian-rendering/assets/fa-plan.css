@@ -32,7 +32,9 @@
 /* The template reads its fonts from --vscode-markdown-font-family and
    --vscode-editor-font-family, neither of which the chat patch sets. Append the
    Persian fallback to each: Latin text still comes from the system font,
-   because the Non-Latin build of Vazirmatn has no Latin glyphs to offer. */
+   because the Non-Latin build of Vazirmatn has no Latin glyphs to offer.
+   As in the chat panel, these stacks are only the no-JS fallback -- fa-bidi.js
+   rebuilds both variables from the user's real --vscode-* font settings. */
 body {
   --fa-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans",
            Ubuntu, Cantarell, "Helvetica Neue", "Vazirmatn NL", sans-serif;
