@@ -20,9 +20,16 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 CONTEXT = os.path.join(HERE, "..", "context")
 
+# Persian compounds join with a space, a ZWNJ (U+200C), or nothing at all --
+# «می‌خوام», «می خوام» and «میخوام» are the same word. \s does not match ZWNJ
+# (it is a format character, not whitespace), so every joint in a Persian
+# pattern must allow all three. The escape rather than the literal: ZWNJ is
+# invisible in source and a stray one is impossible to spot by eye.
+J = r"[\s‌]*"
+
 # Asking for a choice outright: "which one", "what's best", "recommend".
 ASKS_FOR_A_CHOICE = re.compile(
-    r"""
+    rf"""
       recommend | suggest | \bbest\b | \bbetter\b | alternative
     | should\s+(?:i|we|it)\s+(?:use|pick|choose|go)
     | which\s+\w+\s+(?:should|do\s+you|would)
@@ -33,8 +40,8 @@ ASKS_FOR_A_CHOICE = re.compile(
     | پیشنهاد | توصیه | بهترین | بهتره | جایگزین | مقایسه
     | کدوم | کدام
     | چی\s+(?:استفاده|بزن|بذار|انتخاب)
-    | راهکار | راه\s*حل
-    | جدیدتر | به\s*روزتر | آخرین\s+نسخه | منسوخ
+    | راهکار | راه{J}حل
+    | جدیدتر | به{J}روزتر | آخرین\s+نسخه | منسوخ
     """,
     re.I | re.X,
 )
@@ -43,18 +50,20 @@ ASKS_FOR_A_CHOICE = re.compile(
 # with no question mark in it and none of the words above -- and it is the most
 # common way the choice actually arrives. Missing these was the real gap.
 INTENDS_TO_BUILD = re.compile(
-    r"""
+    rf"""
       (?:want\s+to|need\s+to|going\s+to|plan(?:ning)?\s+to|let'?s|
          help\s+me|how\s+do\s+i|how\s+can\s+i)
-      \s+ (?:\w+\s+){0,3}?
+      \s+ (?:\w+\s+){{0,3}}?
       (?:set\s*up|setup|build|implement|deploy|install|configure|stand\s+up|
          spin\s+up|add|introduce|create|migrate|replace|host|run)
     | \bwe\s+need\s+(?:a|an|some)\b
     | \bfrom\s+scratch\b
-    | (?:می\s*خوام|می\s*خواهم|میخوایم|می\s*خواستم|باید|لازمه|کمکم\s+کن)
-      [\s\S]{0,40}?
-      (?:پیاده\s*[‌]?\s*سازی|راه\s*بند|راه\s*انداز|بالا\s*بیار|ست\s*آپ|
-         نصب\s+کن|مستقر|اضافه\s+کن|جایگزین|از\s+صفر)
+    | (?:می{J}خوا(?:م|هم|یم|هیم|ستم)|باید|لازمه|قراره|بیا(?:ید)?\b|
+         نیاز\s+داریم|کمکم\s+کن)
+      [\s\S]{{0,40}}?
+      (?:پیاده{J}سازی|راه{J}بند|راه{J}انداز|بالا\s*بیار|ست{J}آپ|
+         نصب\s+کن|مستقر|اضافه\s+کن|جایگزین|از\s+صفر|بساز)
+    | نیاز\s+داریم
     """,
     re.I | re.X,
 )
