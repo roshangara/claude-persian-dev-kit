@@ -23,8 +23,14 @@ webview bundle.
 If the font has not changed, it is almost always one of those two — see
 [Troubleshooting](#troubleshooting).
 
-Updates arrive when you run `/plugin marketplace update`, or automatically if
-you set `autoUpdate` on the marketplace in your settings.
+Updates: Claude Code checks the marketplace shortly after a session starts,
+but for a third-party marketplace like this one auto-update is **off** until
+you enable it once — `/plugin` → Marketplaces → this marketplace →
+Enable auto-update. After that, new versions download on their own and apply
+at the next launch (or immediately with `/reload-plugins`). Without it, update
+by hand: `claude plugin update <plugin>@persian-dev-kit`, then restart.
+`/plugin marketplace update` only refreshes the catalog — it does not update
+installed plugins.
 
 ---
 
