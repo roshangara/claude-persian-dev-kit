@@ -1,7 +1,7 @@
 {
   "name": "verify-first",
   "displayName": "Verify before you agree, and before you pin",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Three habits with triggers, not always-on modes: check a claim before building on it, research before recommending a tool or version, and never write a dependency pin from memory.",
   "author": {
     "name": "Mohammad Roshangara",

@@ -41,6 +41,14 @@ system font and nothing else changes appearance. It is served from the
 extension itself, so you do not install anything locally and it works from any
 browser you open the workspace in.
 
+Your own font settings survive. The script reads the fonts you configured —
+`--vscode-editor-font-family` and friends — and slots Vazirmatn in just before
+the generic family, so a Fira Code setting keeps rendering the code blocks and
+Vazirmatn only ever supplies the Arabic-script glyphs nothing else offers. It
+has to sit *before* `monospace`: whatever font that generic resolves to on the
+machine may carry Arabic glyphs of its own, and any font earlier in the list
+that has the glyph wins.
+
 **Direction decided by the first character.** The panel uses
 `unicode-bidi: plaintext`, which takes a block's direction from its *first
 strong character*. A paragraph like
@@ -119,10 +127,15 @@ cell-based terminal breaks Arabic letter joining by construction.
 | `CPDK_VERBOSE` | print what was patched |
 
 Without an override it looks in the code-server, VS Code Server, VS Code
-desktop, Cursor and Windsurf extension directories. It exits 0 and says nothing
-when no Claude Code extension is installed.
+desktop, VSCodium, openvscode-server, Cursor and Windsurf extension
+directories. It exits 0 and says nothing when no Claude Code extension is
+installed.
 
 ### Checking it worked
+
+`/fa-doctor` does the whole check in one go: it re-runs the patcher verbosely,
+greps the patch markers in every extension it can find, confirms `python3` is
+there for the plan tab, and says exactly which step is broken if one is.
 
 `tests/render-test-fa.txt` and `tests/render-test-en.txt` are prompts. Paste one
 into a fresh session and it produces every element Claude Code can render —
@@ -158,7 +171,13 @@ Persian but whose skeleton is English — calques, forty-word sentences, passive
 voice, `توسط` everywhere, bookish register nobody speaks.
 
 The guide is injected **only when your message actually contains Persian**, so
-an English-only session pays nothing for it.
+an English-only session pays nothing for it. Persian inside code fences or
+inline code does not count — an English message that pastes a Persian error
+string must not flip the answer's language.
+
+The register is for the chat only. The guide's last rule says so explicitly:
+commit messages, code comments, docs and issue text follow the repo's own
+language and tone, never the spoken register.
 
 Why a hook and not a `CLAUDE.md` rule: a style rule has to govern the first
 sentence of the answer. Loaded once at session start it fades — in the session
@@ -219,6 +238,12 @@ The second has no question mark and none of the recommendation words in it, but
 it is still a decision about what to use. Matching only the first shape was this
 plugin's biggest hole.
 
+The Persian patterns accept every joining a compound actually gets typed with —
+ZWNJ, space, or nothing: «می‌خوام», «می خوام» and «میخوام» all match. `\s` does
+not match ZWNJ, so the earlier patterns silently missed the *standard* spelling
+of exactly the words they were written for. `tests/test-verify-first.py` holds
+the trigger cases, ZWNJ ones first.
+
 The rule scales with the question. A version check is one registry call. A "we
 need an X" is three steps before anything gets named: read what they already
 run, search what the current landscape actually is, then check the thing you
@@ -235,8 +260,14 @@ English and Persian phrasings both. Ordinary work — `fix`, `run`, `commit`,
 
 **Never write a version from memory.** A `PreToolUse` hook scans every `Write`
 and `Edit` for dependency pins — `uses: owner/repo@v4`, `FROM node:22`,
-`"react": "^18.2.0"`, `requests==2.31.0`, `version = "5.31.0"` — and puts the
+`"react": "^18.2.0"`, `requests==2.31.0`, `version = "5.31.0"`, a `go.mod`
+require line, a Gemfile `gem`, a Cargo `{ version = "1.0" }` — and puts the
 rule back in front of Claude at the moment it is about to write one.
+
+A `"version"` key by itself is exempt: that is the file's *own* version, and a
+guard that fires on every routine `plugin.json` bump trains everyone to skim
+past it — this repo's own release commits used to trip it three times over.
+`tests/test-version-guard.py` pins the catches and the exemptions both.
 
 This one is worth the machinery because the failure is silent. A version that
 was current when the model was trained still *looks* right in a diff. Nobody
@@ -270,15 +301,23 @@ real work.
 CSPـش `default-src 'none'` ـه و فونت از فایل بیرونی اصلاً load نمی‌شه. این تیکه
 `python3` لازم داره؛ اگه نباشه panel وصله می‌شه و فقط تب پلن دست‌نخورده می‌مونه.
 
+فونتی که خودت تو تنظیمات VS Code گذاشتی سر جاش می‌مونه: script استک واقعی رو از
+متغیرهای `--vscode-*` می‌خونه و وزیرمتن رو فقط قبل از generic اضافه می‌کنه — پس
+مثلاً Fira Code همچنان کد رو رندر می‌کنه و وزیرمتن فقط گلیف‌های فارسی رو می‌ده.
+
 وصله سر هر سشن دوباره اعمال می‌شه، چون اکستنشن تقریباً روزانه آپدیت می‌شه و هر
 آپدیت وصله رو پاک می‌کنه. بعد از اولین اجرا یه بار `Developer: Reload Window`
-بزن.
+بزن. هر وقت شک کردی وصله هست یا نه، `/fa-doctor` رو بزن — کل زنجیره رو چک
+می‌کنه و می‌گه کجاش خرابه.
 
 **ترمینال درست نمی‌شه.** xterm.js پشتیبانی bidi نداره و این وصله فقط panel رو
 می‌گیره.
 
 **persian-style** — کاری می‌کنه فارسی بنویسه، نه انگلیسیِ ترجمه‌شده. راهنما فقط
-وقتی تزریق می‌شه که پیامت واقعاً حرف فارسی داشته باشه.
+وقتی تزریق می‌شه که پیامت واقعاً حرف فارسی داشته باشه — فارسیِ داخل code block
+حساب نیست، پس پیام انگلیسی‌ای که فقط یه ارور فارسی رو نقل می‌کنه جواب رو فارسی
+نمی‌کنه. لحن خودمونی هم فقط مال چته: کامیت و کامنت و doc به زبون خود ریپو
+می‌مونه.
 
 hookهای `UserPromptSubmit` روی هم جمع می‌شن، جای هم رو نمی‌گیرن. این plugin فقط
 مسئول **لحن**ـه — خودمونی به‌جای کتابی. کاری به طول جواب نداره. اگه یه plugin
@@ -289,7 +328,9 @@ hookهای `UserPromptSubmit` روی هم جمع می‌شن، جای هم رو 
 تو فارسی «رو» نقش دستوری داره و بی‌اون جمله غلط خونده می‌شه.
 
 **verify-first** — قبل از اینکه نسخه‌ای بنویسه، مجبورش می‌کنه از رجیستری بپرسه
-نه از حافظه.
+نه از حافظه. الگوهای فارسیش حالا نیم‌فاصله رو هم می‌فهمن: «می‌خوام» و «می خوام»
+و «میخوام» هر سه trigger حساب می‌شن — قبلاً `\s` نیم‌فاصله رو نمی‌گرفت و دقیقاً
+املای استاندارد از دستش می‌رفت.
 
 ---
 
@@ -302,8 +343,10 @@ hookهای `UserPromptSubmit` روی هم جمع می‌شن، جای هم رو 
 2. **You did not reload the window.** The patch is on disk but the browser still
    has the old bundle. `Developer: Reload Window`.
 3. **The plugin failed to load.** `claude plugin list` — look for
-   `Status: ✔ enabled` and `Version: 0.2.0` or newer. Anything older, run
+   `Status: ✔ enabled` and `Version: 0.3.0` or newer. Anything older, run
    `claude plugin update persian-rendering@persian-dev-kit`.
+
+`/fa-doctor` walks all of this for you and names the failing step.
 
 **The panel is fine but the plan tab is not.** Those are two different webviews.
 Run the patch with `CPDK_VERBOSE=1` and look for `patched plan preview`. If it
