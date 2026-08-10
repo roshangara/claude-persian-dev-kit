@@ -135,6 +135,26 @@ actually works.
 The register is opinionated: everyday spoken Persian, second person singular.
 Edit `plugins/persian-style/style/persian.md` to taste — it is one file.
 
+### Alongside another style plugin
+
+`UserPromptSubmit` hooks add up rather than replace each other, so this runs
+next to whatever else you have on that event. It owns one axis only —
+**register**: spoken rather than bookish, Persian structure rather than
+translated English. It says nothing about how long an answer should be. A
+terseness plugin such as [caveman](https://github.com/JuliusBrussee/caveman)
+owns length, and the two compose: three of the rules here — short sentences,
+active voice, break up noun chains — pull the same direction.
+
+Two things to know when you stack them:
+
+- **The guide is ~52 lines of input on every Persian message.** A compression
+  plugin saves output tokens; this spends input ones. Different budgets, but if
+  you are reading a token-savings number, that is where part of it went.
+- **Keep the object marker.** Dropping articles is an English move. `رو` carries
+  grammatical role in Persian, and a fragment without it reads wrong — the
+  `را → رو` row in the guide is about which form to use, not whether to write
+  one.
+
 ---
 
 ## verify-first
@@ -219,6 +239,14 @@ real work.
 
 **persian-style** — کاری می‌کنه فارسی بنویسه، نه انگلیسیِ ترجمه‌شده. راهنما فقط
 وقتی تزریق می‌شه که پیامت واقعاً حرف فارسی داشته باشه.
+
+hookهای `UserPromptSubmit` روی هم جمع می‌شن، جای هم رو نمی‌گیرن. این plugin فقط
+مسئول **لحن**ـه — خودمونی به‌جای کتابی. کاری به طول جواب نداره. اگه یه plugin
+دیگه مثل [caveman](https://github.com/JuliusBrussee/caveman) داری که جواب رو
+کوتاه می‌کنه، این دوتا با هم می‌سازن؛ سه تا از قاعده‌های همین راهنما — جمله‌ی
+کوتاه، فعل معلوم، شکستن زنجیره‌ی اضافه — هم‌جهت اونن. دو تا نکته: راهنما هر پیام
+فارسی حدود ۵۲ خط input می‌خوره، و «رو» رو نباید بندازی. حذف article کار انگلیسیه؛
+تو فارسی «رو» نقش دستوری داره و بی‌اون جمله غلط خونده می‌شه.
 
 **verify-first** — قبل از اینکه نسخه‌ای بنویسه، مجبورش می‌کنه از رجیستری بپرسه
 نه از حافظه.
