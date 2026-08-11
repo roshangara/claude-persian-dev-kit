@@ -2,6 +2,26 @@
 
 Each plugin versions independently; entries here group what shipped together.
 
+## 2026-08-11 — persian-rendering 0.3.2
+
+- **The caret no longer strands itself across the composer.** Press Enter in the
+  input and the browser wraps the new line in a bare `<div>`. `unicode-bidi` is
+  not an inherited property, so that div kept the element's `ltr` while the
+  visible mirror layer — one text node under the plaintext rule — drew the same
+  line right-to-left. The caret sat the width of the composer away from its own
+  glyphs: clicking never reached the text, and the only way out was to cut the
+  text, paste it back, and hope. Measured at 584px in the report that found it.
+  Blocks inside the editable now get the same rule. Mention chips are left
+  alone deliberately — they are spans the editable has no counterpart for.
+
+### فارسی
+
+تو اینپوت که Enter می‌زدی، مرورگر خط جدید رو تو یه `<div>` می‌پیچید. چون
+`unicode-bidi` ارث نمی‌رسه، اون div چپ‌به‌راست می‌موند و خط فارسی داخلش می‌رفت
+چپ — درحالی‌که لایه‌ی مرئی همون خط رو راست می‌کشید. یعنی caret به عرض یه
+اینپوت از متن خودش فاصله می‌گرفت و هر جا کلیک می‌کردی نمی‌رسید بهش. حالا
+بلاک‌های داخل اینپوت هم همون قاعده رو می‌گیرن.
+
 ## 2026-08-10 — persian-rendering 0.3.1
 
 - The app renders bidi control characters (RLM, LRM, the isolate pair) as

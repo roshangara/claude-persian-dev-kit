@@ -67,6 +67,28 @@ input[type="text"],
   text-align: start;
 }
 
+/* And the boxes the browser builds inside the editable, because `unicode-bidi`
+   is not an inherited property. Press Enter in the composer and Chrome wraps the
+   new line in a bare <div>; that div was left on the element's own `ltr`, so a
+   Persian line inside it laid out left-to-right while the mirror -- one text node
+   under a plaintext rule -- drew the same line right-to-left. The caret ended up
+   the width of the composer away from its glyphs, which is unusable and looks
+   like the caret is lost. Measured at 584px in the report that found this.
+
+   Blocks only, and the mirror's descendants not at all. Both restrictions are
+   the same caution: an inline box that exists on one layer and not the other must
+   keep whatever the browser gave it. The mirror's mention chips are spans with no
+   counterpart in the editable, and a span inside the editable has none in the
+   mirror -- isolating either would reintroduce the divergence this removes. */
+[class*="messageInput_"] div,
+[class*="messageInput_"] p,
+[contenteditable="true"] div,
+[contenteditable="true"] p,
+[contenteditable="plaintext-only"] div,
+[contenteditable="plaintext-only"] p {
+  unicode-bidi: plaintext;
+}
+
 /* A Latin link label inside a Persian sentence ("architecture.md:332") ends in
    dots and colons, which are bidi-neutral and drift to the wrong end. Isolating
    the link makes it one unit that the sentence places as a whole. */

@@ -1,7 +1,7 @@
 {
   "name": "persian-rendering",
   "displayName": "Persian rendering for the Claude Code panel",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Makes Persian readable in the Claude Code VS Code panel and in the plan preview: bundles the Vazirmatn webfont and decides each block's text direction by counting characters instead of by the first strong one.",
   "author": {
     "name": "Mohammad Roshangara",

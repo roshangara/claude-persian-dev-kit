@@ -369,6 +369,21 @@ preview not patched`, the template inside `extension.js` no longer matches what
 the patcher expects — it restores the original rather than write a broken bundle,
 so please open an issue with your extension version.
 
+**The caret in the input is nowhere near the text.** Fixed in 0.3.2 — update and
+reload the window. If it comes back, the two layers of the composer have gone out
+of step again; the invisible one owns the caret and the visible one owns the
+glyphs. This dumps both, so an issue can say what actually differed:
+
+```js
+const e = document.querySelector('[class*="messageInput_"]');
+const m = document.querySelector('[class*="mentionMirror_"]');
+copy(JSON.stringify({ editHTML: e.innerHTML, mirrorText: m.textContent }))
+```
+
+Run it in `Developer: Open Webview Developer Tools` while the input is in the
+broken state. Meanwhile, cutting the text and pasting it back rebuilds the DOM
+and clears it.
+
 To see what the patch actually did, run it by hand:
 
 ```
