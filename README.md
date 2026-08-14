@@ -78,6 +78,11 @@ The measurement has a few deliberate choices:
   plain majority decides headings like `Variables و اولویت‌شان` by one letter.
 - **Code blocks stay left-to-right**, always. A Persian comment must not flip
   the line.
+- **A number after a Latin word gets that word isolated.** Unicode's rule W7
+  gives a number to the last strong character before it, so "روی shahab ۲ دقیقه"
+  renders as "روی ۲ shahab دقیقه" — the number arrives before the word it belongs
+  to. Both `۲` and `2` do this; they are the same bidi class. Only that shape is
+  wrapped, and only the direction changes, never the text.
 
 One more cleanup rides along: the app deliberately renders bidi control
 characters (RLM, LRM, the isolate pair) as visible `\uXXXX` escape text — a

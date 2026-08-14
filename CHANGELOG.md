@@ -2,6 +2,28 @@
 
 Each plugin versions independently; entries here group what shipped together.
 
+## 2026-08-11 — persian-rendering 0.3.3
+
+- **A number after a Latin word no longer jumps in front of it.** "این فاز روی
+  shahab ۲ دقیقه طول کشید" was rendering as "این فاز روی ۲ shahab دقیقه" — the
+  number read as though it belonged to whatever came before. Unicode's rule W7
+  hands a number to the last strong character before it, so the number joined the
+  Latin word's left-to-right run, and that run lays out internally with the number
+  on the word's right, which is where a right-to-left reader arrives first.
+  Nothing to do with Persian digits: `۲` and `2` are both bidi class EN and both
+  did it. The word is now isolated, which puts the number back on its left.
+  Only that shape is wrapped — a Latin word with a number right after it — not
+  every Latin run, and the text itself is untouched, so copying a message still
+  gives exactly what it gave before.
+
+### فارسی
+
+«این فاز روی shahab ۲ دقیقه طول کشید» رندر می‌شد «این فاز روی ۲ shahab دقیقه».
+قانون W7 یونیکد عدد رو می‌چسبونه به آخرین حرف قوی قبلش، یعنی عدد جذب کلمه‌ی
+لاتین می‌شد و ته اون تیکه‌ی چپ‌به‌راست می‌نشست — سمت راستِ کلمه، همون‌جایی که
+چشم فارسی‌خون اول می‌رسه. ربطی به فارسی بودن رقم نداشت؛ `۲` و `2` هر دو همین
+کار رو می‌کردن. حالا کلمه‌ی لاتین isolate می‌شه و عدد برمی‌گرده سر جاش.
+
 ## 2026-08-11 — persian-rendering 0.3.2
 
 - **The caret no longer strands itself across the composer.** Press Enter in the

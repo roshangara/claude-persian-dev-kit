@@ -138,6 +138,69 @@
     }
   };
 
+  /* "این فاز روی shahab ۲ دقیقه طول کشید" renders as "این فاز روی ۲ shahab
+     دقیقه". Unicode's rule W7 gives a number to the last strong character before
+     it, so a number after a Latin word is absorbed into that word's left-to-right
+     run. The run then lays out internally as "shahab ۲", which inside a
+     right-to-left line puts the number on the word's right -- where the reader
+     meets it first. The number reads as if it belonged to whatever came before.
+
+     Not about Persian digits: U+06F2 and ASCII 2 are both bidi class EN, and both
+     do this. Measured: with the word isolated, the number lands to the word's
+     left, which is where it is read after it.
+
+     Only the failing shape is wrapped -- a Latin word with a number after it --
+     rather than every Latin run, because this rewrites message DOM on a panel
+     that re-renders while streaming. Text content is unchanged, so copying a
+     message still yields what it always did. */
+  const LATIN_BEFORE_NUMBER =
+    /[A-Za-z][A-Za-z0-9._+/-]*(?=\s+[0-9٠-٩۰-۹])/g;
+
+  const isolateLatinBeforeNumber = (el) => {
+    if (!el.querySelectorAll || el.closest(SKIP)) return;
+    if (el.getAttribute('data-fa-dir') !== 'rtl') return;
+
+    const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+      acceptNode: (n) => {
+        const p = n.parentElement;
+        if (!p || p.closest(SKIP)) return NodeFilter.FILTER_REJECT;
+        /* Already wrapped: the word sits alone in its span, and the number is in
+           the next node with no word in front of it, so neither matches again. */
+        if (p.hasAttribute('data-fa-iso')) return NodeFilter.FILTER_REJECT;
+        /* A nested block that was judged left-to-right on its own reads fine
+           already; leave it to its own pass. */
+        const b = p.closest(BLOCKS);
+        if (b && b.getAttribute('data-fa-dir') !== 'rtl') return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      },
+    });
+
+    /* Collect first: replacing a node while the walker is on it loses the walk. */
+    const targets = [];
+    for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+      LATIN_BEFORE_NUMBER.lastIndex = 0;
+      if (LATIN_BEFORE_NUMBER.test(n.nodeValue)) targets.push(n);
+    }
+
+    for (const node of targets) {
+      const text = node.nodeValue;
+      const frag = document.createDocumentFragment();
+      let last = 0, m;
+      LATIN_BEFORE_NUMBER.lastIndex = 0;
+      while ((m = LATIN_BEFORE_NUMBER.exec(text))) {
+        if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+        const span = document.createElement('span');
+        span.setAttribute('data-fa-iso', '');
+        span.style.setProperty('unicode-bidi', 'isolate', 'important');
+        span.textContent = m[0];
+        frag.appendChild(span);
+        last = m.index + m[0].length;
+      }
+      if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+      node.parentNode.replaceChild(frag, node);
+    }
+  };
+
   const hasOwnText = (el) => {
     for (let n = el.firstChild; n; n = n.nextSibling) {
       if (n.nodeType === Node.TEXT_NODE && /\S/.test(n.nodeValue)) return true;
@@ -181,6 +244,10 @@
       node.querySelectorAll(BLOCKS).forEach(apply);
       if (node.matches(LOOSE)) applyLoose(node);
       node.querySelectorAll(LOOSE).forEach(applyLoose);
+      /* After the direction verdicts, since this only runs inside blocks that
+         came out right-to-left. */
+      isolateLatinBeforeNumber(node);
+      node.querySelectorAll(BLOCKS).forEach(isolateLatinBeforeNumber);
     }
   };
 
