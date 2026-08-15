@@ -2,6 +2,20 @@
 
 Each plugin versions independently; entries here group what shipped together.
 
+## 2026-08-11 — persian-rendering 0.3.4
+
+- The number fix from 0.3.3 never reached a message bubble. It walked a tag list
+  — paragraphs, list items, table cells — but the panel puts a user's own message
+  straight into a `div`, which is most of the text anyone would test it on. It
+  now follows the direction verdict instead of the tag: every block measured
+  right-to-left gets the pass.
+
+### فارسی
+
+اصلاح ۰.۳.۳ به حبابِ پیام نمی‌رسید. دنبال تگ می‌گشت — `p` و `li` و امثالش — ولی
+پیام خود کاربر رو پنل مستقیم تو یه `div` می‌ذاره. حالا به‌جای تگ، هر بلاکی که
+راست‌به‌چپ تشخیص داده شده رو می‌گیره.
+
 ## 2026-08-11 — persian-rendering 0.3.3
 
 - **A number after a Latin word no longer jumps in front of it.** "این فاز روی

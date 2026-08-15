@@ -244,10 +244,12 @@
       node.querySelectorAll(BLOCKS).forEach(apply);
       if (node.matches(LOOSE)) applyLoose(node);
       node.querySelectorAll(LOOSE).forEach(applyLoose);
-      /* After the direction verdicts, since this only runs inside blocks that
-         came out right-to-left. */
+      /* After the direction verdicts, and driven by the verdict itself rather
+         than by a tag list: a message bubble is a plain div, so walking BLOCKS
+         here reached paragraphs and list items but not the text the panel puts
+         straight into a div -- which is most of what a user's own message is. */
       isolateLatinBeforeNumber(node);
-      node.querySelectorAll(BLOCKS).forEach(isolateLatinBeforeNumber);
+      node.querySelectorAll('[data-fa-dir="rtl"]').forEach(isolateLatinBeforeNumber);
     }
   };
 
